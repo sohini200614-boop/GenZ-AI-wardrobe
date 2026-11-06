@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wardrobe — AI Stylist</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header>
+        <p class="eyebrow">AI Stylist · Runs 100% in your browser</p>
+        <h1>Wardrobe</h1>
+        <p class="subtitle">Upload an outfit photo — AI detects style, rates your fit, and suggests looks.</p>
+    </header>
+
+    <div class="loader-bar" id="loader-bar">
+        <div class="loader-inner">
+            <span class="loader-spinner"></span>
+            <span id="loader-text">Loading AI model (first visit ~50 MB, cached after)…</span>
+        </div>
+        <div class="loader-track">
+            <div class="loader-fill" id="loader-fill"></div>
+        </div>
+    </div>
+
+    <nav class="tabs">
+        <button class="tab active" data-tab="photo">📷 Photo Rate</button>
+        <button class="tab" data-tab="occasion">🎉 Occasion</button>
+        <button class="tab" data-tab="weather">🌤 Weather</button>
+        <button class="tab" data-tab="trends">🔥 Trends</button>
+        <button class="tab" data-tab="history">🗂 History</button>
+    </nav>
+
+    <main class="panel">
+        <!-- Photo Rate -->
+        <section id="tab-photo" class="tab-content active">
+            <div class="chat-messages" id="photo-messages"></div>
+            <div class="dropzone" id="dropzone">
+                <div class="dropzone-icon">🖼️</div>
+                <p class="dropzone-label">Drag &amp; drop a photo, or <span class="link">browse</span></p>
+                <p class="dropzone-hint">JPG, PNG, WEBP · analysed entirely on your device</p>
+            </div>
+            <div class="row gap-10 mt-10">
+                <input type="file" id="file-upload" accept="image/*" hidden />
+                <input type="file" id="camera-upload" accept="image/*" capture="environment" hidden />
+                <button class="btn btn-outline" id="btn-upload">📁 Upload</button>
+                <button class="btn btn-dark" id="btn-camera">📷 Camera</button>
+            </div>
+        </section>
+
+        <!-- Occasion -->
+        <section id="tab-occasion" class="tab-content">
+            <div class="section-scroll">
+                <p class="field-label">Select occasion</p>
+                <div class="occasion-grid" id="occasion-grid">
+                    <button class="occ-btn" data-occ="party">🎉 Party</button>
+                    <button class="occ-btn" data-occ="college">🎓 College</button>
+                    <button class="occ-btn" data-occ="formal">👔 Formal</button>
+                    <button class="occ-btn" data-occ="date">💕 Date Night</button>
+                    <button class="occ-btn" data-occ="beach">🏖 Beach</button>
+                    <button class="occ-btn" data-occ="gym">💪 Gym</button>
+                    <button class="occ-btn" data-occ="office">💼 Office</button>
+                    <button class="occ-btn" data-occ="wedding">💍 Wedding</button>
+                    <button class="occ-btn" data-occ="brunch">🥂 Brunch</button>
+                    <button class="occ-btn" data-occ="travel">✈️ Travel</button>
+                </div>
+
+                <p class="field-label mt-16">Your gender / style preference <span class="optional">(optional)</span></p>
+                <div class="row gap-10">
+                    <button class="pill-btn active" data-gender="any">Any</button>
+                    <button class="pill-btn" data-gender="feminine">Feminine</button>
+                    <button class="pill-btn" data-gender="masculine">Masculine</button>
+                    <button class="pill-btn" data-gender="unisex">Unisex</button>
+                </div>
+
+                <p class="field-label mt-16">Your skin tone <span class="optional">(for colour matching)</span></p>
+                <div class="row gap-10 skin-row">
+                    <button class="skin-btn active" data-skin="fair">
+                        <span class="skin-swatch" style="background: #FDE5D9;"></span>
+                        <span>Fair</span>
+                    </button>
+                    <button class="skin-btn" data-skin="light">
+                        <span class="skin-swatch" style="background: #E8C4A8;"></span>
+                        <span>Light</span>
+                    </button>
+                    <button class="skin-btn" data-skin="medium">
+                        <span class="skin-swatch" style="background: #C99E6F;"></span>
+                        <span>Medium</span>
+                    </button>
+                    <button class="skin-btn" data-skin="olive">
+                        <span class="skin-swatch" style="background: #A89072;"></span>
+                        <span>Olive</span>
+                    </button>
+                    <button class="skin-btn" data-skin="tan">
+                        <span class="skin-swatch" style="background: #8B6F5C;"></span>
+                        <span>Tan</span>
+                    </button>
+                    <button class="skin-btn" data-skin="deep">
+                        <span class="skin-swatch" style="background: #5C4033;"></span>
+                        <span>Deep</span>
+                    </button>
+                </div>
+
+                <button class="btn btn-dark full mt-20" id="occ-submit">Get outfit ideas</button>
+                <div class="result-box" id="occ-result" hidden></div>
+            </div>
+        </section>
+
+        <!-- Weather -->
+        <section id="tab-weather" class="tab-content">
+            <div class="section-scroll">
+                <p class="field-label">Temperature</p>
+                <div class="slider">
+                    <span class="slider-label">❄️</span>
+                    <input type="range" id="temp-slider" min="-10" max="45" value="22" step="1" />
+                    <span class="slider-val" id="temp-val">22°C</span>
+                </div>
+
+                <p class="field-label mt-16">Weather condition</p>
+                <div class="weather-grid">
+                    <button class="occ-btn active" data-weather="sunny">☀️ Sunny</button>
+                    <button class="occ-btn" data-weather="cloudy">⛅ Cloudy</button>
+                    <button class="occ-btn" data-weather="rainy">🌧 Rainy</button>
+                    <button class="occ-btn" data-weather="windy">💨 Windy</button>
+                    <button class="occ-btn" data-weather="snowy">❄️ Snowy</button>
+                    <button class="occ-btn" data-weather="humid">💧 Humid</button>
+                </div>
+
+                <p class="field-label mt-16">Going to</p>
+                <div class="weather-grid">
+                    <button class="occ-btn active" data-dest="outdoors">🌿 Outdoors</button>
+                    <button class="occ-btn" data-dest="indoors">🏠 Indoors</button>
+                    <button class="occ-btn" data-dest="both">🔀 Both</button>
+                </div>
+
+                <button class="btn btn-dark full mt-20" id="weather-submit">Suggest outfit</button>
+                <div class="result-box" id="weather-result" hidden></div>
+            </div>
+        </section>
+
+        <!-- Trends -->
+        <section id="tab-trends" class="tab-content">
+            <div class="section-scroll">
+                <p class="field-label">Pick a trend to explore</p>
+                <div class="trend-grid">
+                    <button class="trend-card" data-trend="genz">
+                        <span class="trend-icon">✌️</span>
+                        <span class="trend-name">Gen Z</span>
+                        <span class="trend-desc">Y2K, oversized, bold</span>
+                    </button>
+                    <button class="trend-card" data-trend="streetwear">
+                        <span class="trend-icon">🧢</span>
+                        <span class="trend-name">Streetwear</span>
+                        <span class="trend-desc">Urban, graphic, hype</span>
+                    </button>
+                    <button class="trend-card" data-trend="minimalist">
+                        <span class="trend-icon">⬜</span>
+                        <span class="trend-name">Minimalist</span>
+                        <span class="trend-desc">Clean, tonal, quiet</span>
+                    </button>
+                    <button class="trend-card" data-trend="cottagecore">
+                        <span class="trend-icon">🌸</span>
+                        <span class="trend-name">Cottagecore</span>
+                        <span class="trend-desc">Floral, soft, dreamy</span>
+                    </button>
+                    <button class="trend-card" data-trend="darkacademia">
+                        <span class="trend-icon">📚</span>
+                        <span class="trend-name">Dark Academia</span>
+                        <span class="trend-desc">Tweed, moody, classic</span>
+                    </button>
+                    <button class="trend-card" data-trend="quietluxury">
+                        <span class="trend-icon">🤍</span>
+                        <span class="trend-name">Quiet Luxury</span>
+                        <span class="trend-desc">Understated, premium</span>
+                    </button>
+                </div>
+                <div class="result-box" id="trend-result" hidden></div>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section id="tab-history" class="tab-content">
+            <div class="section-scroll">
+                <div class="history-header">
+                    <p class="field-label" style="margin:0">Wardrobe history</p>
+                    <button class="btn btn-outline btn-sm" id="clear-history">Clear all</button>
+                </div>
+                <div id="history-list"></div>
+                <p id="history-empty" class="empty-state">No outfits rated yet. Upload a photo to get started.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+
+        <p class="footer-credit">built by SOHINI CHAKRABORTY</p>
+    </footer>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
